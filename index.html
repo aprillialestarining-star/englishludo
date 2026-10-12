@@ -1,0 +1,1547 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ENGLISH LUDO GAMES</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;800;900&family=Cinzel+Decorative:wght@700;900&family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        navy: {
+                            950: '#070B19',
+                            900: '#0B132B',
+                            800: '#1C2541',
+                            700: '#2A385B',
+                            600: '#1E3A8A'
+                        },
+                        gold: {
+                            500: '#FFD700',
+                            600: '#D4AF37',
+                            700: '#AA820A',
+                            light: '#F3E5AB'
+                        },
+                        ivory: '#FAF0E6'
+                    },
+                    fontFamily: {
+                        cinzel: ['Cinzel', 'serif'],
+                        cinzelDeco: ['Cinzel Decorative', 'serif'],
+                        montserrat: ['Montserrat', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        :root {
+            --tile-size: clamp(38px, min(4.8vw, 7.8vh), 58px);
+            --board-gap: clamp(3px, 0.4vw, 6px);
+        }
+
+        html, body {
+            width: 100%;
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            background-color: #070B19;
+            color: #FAF0E6;
+            font-family: 'Montserrat', sans-serif;
+            user-select: none;
+        }
+
+        /* Custom Scrollbars for Activity Log */
+        ::-webkit-scrollbar {
+            width: 4px;
+        }
+        ::-webkit-scrollbar-track {
+            background: rgba(11, 19, 43, 0.6);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #D4AF37;
+            border-radius: 2px;
+        }
+
+        /* Royal Board Frame Texture & Borders */
+        .royal-border {
+            border: 2px solid #D4AF37;
+            box-shadow: inset 0 0 10px rgba(212, 175, 55, 0.3), 0 4px 20px rgba(0, 0, 0, 0.7);
+        }
+
+        .royal-card-border {
+            border: 1.5px solid #D4AF37;
+            background: linear-gradient(135deg, #1C2541 0%, #0B132B 100%);
+        }
+
+        .board-container {
+            background: radial-gradient(circle at center, #1C2541 0%, #0B132B 80%, #070B19 100%);
+            border: 3px solid #D4AF37;
+            box-shadow: 0 0 35px rgba(212, 175, 55, 0.25), inset 0 0 25px rgba(0, 0, 0, 0.8);
+        }
+
+        /* Physical Game Tiles Styling */
+        .ludo-tile {
+            width: var(--tile-size);
+            height: var(--tile-size);
+            background: linear-gradient(145deg, #FFF8DC 0%, #FAF0E6 70%, #E6D7C3 100%);
+            border: 2px solid #D4AF37;
+            border-radius: 8px;
+            box-shadow: inset 0 2px 3px rgba(255, 255, 255, 0.8), inset 0 -2px 3px rgba(0, 0, 0, 0.2), 0 4px 8px rgba(0, 0, 0, 0.5);
+            color: #0B132B;
+            font-family: 'Cinzel', serif;
+            font-weight: 800;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .ludo-tile.crossroads {
+            border: 2.5px solid #FFD700;
+            box-shadow: 0 0 15px rgba(255, 215, 0, 0.6), inset 0 0 8px rgba(212, 175, 55, 0.5);
+            background: linear-gradient(145deg, #FFFDD0 0%, #FAF0E6 60%, #F3E5AB 100%);
+        }
+
+        .ludo-tile.start-tile {
+            background: linear-gradient(145deg, #1E3A8A 0%, #0B132B 100%);
+            color: #FFD700;
+            border: 2px solid #FFD700;
+        }
+
+        .ludo-tile.finish-tile {
+            background: radial-gradient(circle, #1E3A8A 0%, #0B132B 100%);
+            color: #FFD700;
+            border: 3px solid #FFD700;
+            box-shadow: 0 0 20px rgba(255, 215, 0, 0.8), inset 0 0 10px rgba(255, 215, 0, 0.5);
+            width: calc(var(--tile-size) * 1.15);
+            height: calc(var(--tile-size) * 1.15);
+        }
+
+        /* 3D Pawns Visual Design */
+        .pawn {
+            width: calc(var(--tile-size) * 0.52);
+            height: calc(var(--tile-size) * 0.52);
+            border-radius: 50%;
+            position: absolute;
+            z-index: 20;
+            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: clamp(10px, 1.2vw, 14px);
+        }
+
+        .pawn-team1 {
+            background: radial-gradient(circle at 35% 35%, #FF4D4D, #B30000 70%, #660000);
+            border: 2px solid #FFD700;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.8), 0 0 10px rgba(255, 77, 77, 0.6);
+            color: #FFF;
+        }
+
+        .pawn-team2 {
+            background: radial-gradient(circle at 35% 35%, #3B82F6, #1D4ED8 70%, #1E3A8A);
+            border: 2px solid #FFD700;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.8), 0 0 10px rgba(59, 130, 246, 0.6);
+            color: #FFF;
+        }
+
+        /* Dice 3D Effect */
+        .dice-btn {
+            background: radial-gradient(circle, #FFF8DC 0%, #D4AF37 100%);
+            border: 2px solid #FFD700;
+            box-shadow: 0 6px 15px rgba(0,0,0,0.6), inset 0 2px 4px rgba(255,255,255,0.8);
+            transition: transform 0.1s, box-shadow 0.2s;
+        }
+        .dice-btn:hover:not(:disabled) {
+            transform: translateY(-2px) scale(1.03);
+            box-shadow: 0 8px 20px rgba(212, 175, 55, 0.5);
+        }
+        .dice-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+
+        /* DICE ROLL ANIMATIONS */
+        @keyframes diceRoll {
+            0%   { transform: rotate(0deg) scale(1); }
+            20%  { transform: rotate(-25deg) scale(1.15); }
+            40%  { transform: rotate(25deg) scale(0.9); }
+            60%  { transform: rotate(-20deg) scale(1.1); }
+            80%  { transform: rotate(20deg) scale(0.95); }
+            100% { transform: rotate(0deg) scale(1); }
+        }
+
+        .rolling {
+            animation: diceRoll 0.8s ease-in-out infinite;
+        }
+
+        /* Angka dadu bergoyang ketika dikocok */
+        @keyframes diceShake {
+            0%, 100% { transform: translate(0, 0) rotate(0deg); }
+            20% { transform: translate(-3px, -2px) rotate(-8deg); }
+            40% { transform: translate(3px, 2px) rotate(8deg); }
+            60% { transform: translate(-2px, 1px) rotate(-5deg); }
+            80% { transform: translate(2px, -1px) rotate(5deg); }
+        }
+
+        .dice-rolling {
+            animation: diceShake 0.15s linear infinite;
+            box-shadow: 0 0 18px rgba(255, 215, 0, 0.9);
+        }
+
+        /* Efek saat hasil akhir dadu muncul */
+        @keyframes dicePop {
+            0%   { transform: scale(0.5) rotate(-25deg); }
+            60%  { transform: scale(1.3) rotate(8deg); }
+            80%  { transform: scale(0.9) rotate(-4deg); }
+            100% { transform: scale(1) rotate(0deg); }
+        }
+
+        .dice-stop {
+            animation: dicePop 0.45s ease-out;
+            box-shadow: 0 0 20px rgba(255, 215, 0, 0.85);
+        }
+
+        /* ROYAL MANUAL DICE DISPLAY */
+        .royal-dice {
+            width: 48px;
+            height: 48px;
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 2px solid #FFD700;
+            border-radius: 11px;
+            background: linear-gradient(145deg, #FFFDF2 0%, #F3E5AB 45%, #C5A34B 100%);
+            box-shadow: inset 2px 2px 4px rgba(255,255,255,0.95),
+                        inset -3px -4px 6px rgba(80,55,10,0.2),
+                        0 4px 0 #8C6A19,
+                        0 7px 12px rgba(0,0,0,0.5),
+                        0 0 12px rgba(255,215,0,0.2);
+            color: #102044;
+            font-family: 'Cinzel', serif;
+            font-size: 23px;
+            font-weight: 900;
+            text-shadow: 0 1px 0 rgba(255,255,255,0.7);
+        }
+
+        .dice-face-value {
+            display: block;
+            line-height: 1;
+        }
+
+        .manual-dice-btn {
+            width: 25px;
+            height: 29px;
+            border: 1px solid #D4AF37;
+            border-radius: 5px;
+            background: linear-gradient(145deg, #FFF8DC, #D4AF37);
+            color: #0B132B;
+            font-family: 'Cinzel', serif;
+            font-weight: 900;
+            font-size: 12px;
+            box-shadow: 0 2px 0 #8C6A19;
+            cursor: pointer;
+            transition: transform 0.15s, box-shadow 0.15s, opacity 0.15s;
+        }
+
+        .manual-dice-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(255,215,0,0.35);
+        }
+
+        .manual-dice-btn:active:not(:disabled) {
+            transform: translateY(1px);
+        }
+
+        .manual-dice-btn:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: 0 2px 0 #8C6A19;
+        }
+
+        @keyframes royalDiceReveal {
+            0% { transform: scale(0.7) rotate(-15deg); box-shadow: 0 0 0 rgba(255,215,0,0); }
+            65% { transform: scale(1.15) rotate(6deg); box-shadow: 0 0 22px rgba(255,215,0,0.8); }
+            100% { transform: scale(1) rotate(0); box-shadow: 0 0 12px rgba(255,215,0,0.3); }
+        }
+
+        .royal-dice.dice-stop {
+            animation: royalDiceReveal 0.45s ease-out;
+        }
+
+        /* Playing Card Aesthetics */
+        .playing-card {
+            background: linear-gradient(135deg, #1C2541 0%, #0B132B 100%);
+            border: 1.5px solid #D4AF37;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+            transition: all 0.25s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .playing-card.available:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 18px rgba(212, 175, 55, 0.4);
+            border-color: #FFD700;
+        }
+
+        .playing-card.active-card {
+            border-color: #38BDF8;
+            box-shadow: 0 0 12px rgba(56, 189, 248, 0.6);
+            background: linear-gradient(135deg, #0F172A 0%, #1E293B 100%);
+        }
+
+        .playing-card.used-card {
+            filter: grayscale(100%);
+            opacity: 0.45;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+
+        /* Pulse glow for current turn indicator */
+        @keyframes goldPulse {
+            0%, 100% { box-shadow: 0 0 8px rgba(212, 175, 55, 0.4); }
+            50% { box-shadow: 0 0 18px rgba(255, 215, 0, 0.8); }
+        }
+        .turn-glow {
+            animation: goldPulse 2s infinite;
+        }
+    </style>
+</head>
+<body class="flex flex-col h-screen w-screen overflow-hidden bg-navy-950 font-montserrat select-none">
+
+    <!-- COMPACT HEADER BAR -->
+    <header class="h-[46px] min-h-[46px] max-h-[46px] bg-navy-900 border-b border-gold-600 px-4 flex items-center justify-between z-30 shadow-lg">
+        <div class="flex items-center gap-2">
+            <i class="fa-solid font-bold fa-chess-king text-gold-500 text-lg"></i>
+            <h1 class="font-cinzelDeco font-black text-gold-500 text-base tracking-wider drop-shadow">ENGLISH LUDO GAMES</h1>
+        </div>
+
+        <!-- Header Actions -->
+        <div class="flex items-center gap-3">
+            <button onclick="openModal('rulesModal')" class="px-3 py-1 text-xs font-semibold bg-navy-800 hover:bg-navy-700 text-gold-light border border-gold-600 rounded-md transition flex items-center gap-1.5 shadow">
+                <i class="fa-solid fa-scroll text-gold-500"></i> RULES
+            </button>
+            <button onclick="confirmResetGame()" class="px-3 py-1 text-xs font-semibold bg-red-950 hover:bg-red-900 text-red-200 border border-red-600 rounded-md transition flex items-center gap-1.5 shadow">
+                <i class="fa-solid fa-rotate-right text-red-400"></i> RESET GAME
+            </button>
+            <button id="fullscreenBtn" onclick="toggleFullScreen()" class="px-3 py-1 text-xs font-semibold bg-navy-800 hover:bg-navy-700 text-gold-light border border-gold-600 rounded-md transition flex items-center gap-1.5 shadow">
+                <i class="fa-solid fa-expand text-gold-500" id="fullscreenIcon"></i> <span id="fullscreenText">FULL SCREEN</span>
+            </button>
+        </div>
+    </header>
+
+    <!-- MAIN GAME LAYOUT (SIDE PANELS + DOMINANT BOARD) -->
+    <main class="flex-1 flex flex-row items-center justify-between p-2 gap-2 overflow-hidden w-full h-[calc(100vh-46px)]">
+
+        <!-- TEAM 1 SIDE PANEL (RED) -->
+        <aside class="w-[185px] min-w-[185px] max-w-[185px] h-full flex flex-col justify-between bg-navy-900/90 royal-border rounded-lg p-2.5 z-10 overflow-hidden">
+            <!-- Team 1 Header -->
+            <div id="team1Banner" class="text-center p-2 rounded-md bg-navy-800 border border-red-600/60 shadow transition">
+                <div class="flex items-center justify-center gap-2">
+                    <span class="w-3 h-3 rounded-full bg-red-600 inline-block border border-gold-500 shadow"></span>
+                    <h2 class="font-cinzel text-sm font-bold text-red-400 tracking-wide">TEAM 1</h2>
+                </div>
+                <div class="text-[10px] text-gray-300 mt-0.5">RED ROYALS</div>
+            </div>
+
+            <!-- Team 1 Cards -->
+            <div class="flex flex-col gap-2 my-auto">
+                <div class="text-[11px] font-cinzel text-gold-light font-semibold text-center border-b border-gold-600/30 pb-1">
+                    ROYAL CARDS
+                </div>
+
+                <!-- Attack Card -->
+                <div id="t1-card-attack" class="playing-card available p-2 flex items-center justify-between cursor-pointer" onclick="triggerCardVerification('team1', 'attack')">
+                    <div class="flex items-center gap-2">
+                        <span class="text-red-500 text-base font-bold">♠</span>
+                        <div>
+                            <div class="text-xs font-bold text-gray-100 font-cinzel">ATTACK</div>
+                            <div class="text-[9px] text-gray-400">Push -3 steps</div>
+                        </div>
+                    </div>
+                    <span id="t1-badge-attack" class="text-[9px] px-1.5 py-0.5 rounded bg-gold-600/20 text-gold-500 border border-gold-600/40 font-bold">READY</span>
+                </div>
+
+                <!-- Defense Card -->
+                <div id="t1-card-defense" class="playing-card available p-2 flex items-center justify-between cursor-pointer" onclick="triggerCardVerification('team1', 'defense')">
+                    <div class="flex items-center gap-2">
+                        <span class="text-gold-500 text-base font-bold">♜</span>
+                        <div>
+                            <div class="text-xs font-bold text-gray-100 font-cinzel">DEFENSE</div>
+                            <div class="text-[9px] text-gray-400">Block displacement</div>
+                        </div>
+                    </div>
+                    <span id="t1-badge-defense" class="text-[9px] px-1.5 py-0.5 rounded bg-gold-600/20 text-gold-500 border border-gold-600/40 font-bold">READY</span>
+                </div>
+
+                <!-- Lucky Card -->
+                <div id="t1-card-lucky" class="playing-card available p-2 flex items-center justify-between cursor-pointer" onclick="triggerCardVerification('team1', 'lucky')">
+                    <div class="flex items-center gap-2">
+                        <span class="text-amber-400 text-base font-bold">♦</span>
+                        <div>
+                            <div class="text-xs font-bold text-gray-100 font-cinzel">LUCKY</div>
+                            <div class="text-[9px] text-gray-400">Skip challenge</div>
+                        </div>
+                    </div>
+                    <span id="t1-badge-lucky" class="text-[9px] px-1.5 py-0.5 rounded bg-gold-600/20 text-gold-500 border border-gold-600/40 font-bold">READY</span>
+                </div>
+            </div>
+
+            <!-- Team 1 Status / Info -->
+            <div class="bg-navy-950 p-2 rounded border border-gold-600/30 text-center">
+                <span class="text-[10px] text-gray-400 block">CURRENT POSITION</span>
+                <span id="t1-pos-display" class="font-cinzel text-xs font-bold text-gold-500">START TEAM 1</span>
+            </div>
+        </aside>
+
+        <!-- DOMINANT CENTRAL BOARD AREA -->
+        <section class="flex-1 h-full flex flex-col items-center justify-center board-container rounded-xl p-2 relative overflow-hidden">
+            
+            <!-- Current Turn & Dice Controller Overlay Bar -->
+            <div class="w-full max-w-lg bg-navy-900/90 border border-gold-600 rounded-lg p-2 flex items-center justify-between px-4 mb-2 shadow-lg z-20">
+                <div class="flex items-center gap-2">
+                    <span class="text-xs font-cinzel text-gray-300">TURN:</span>
+                    <span id="turnIndicator" class="font-cinzel font-black text-sm px-2.5 py-0.5 rounded text-red-400 bg-red-950/80 border border-red-600 shadow">TEAM 1</span>
+                </div>
+
+                <!-- ROYAL MANUAL DICE INPUT AREA -->
+                <div class="flex items-center gap-3">
+                    <div class="flex flex-col items-center gap-1.5">
+                        <span class="text-[9px] text-gold-light font-bold tracking-widest">SELECT DICE</span>
+                        <div class="flex items-center gap-1" id="manualDiceControls">
+                            <button type="button" onclick="rollDice(1)" class="manual-dice-btn" aria-label="Select dice result 1">1</button>
+                            <button type="button" onclick="rollDice(2)" class="manual-dice-btn" aria-label="Select dice result 2">2</button>
+                            <button type="button" onclick="rollDice(3)" class="manual-dice-btn" aria-label="Select dice result 3">3</button>
+                            <button type="button" onclick="rollDice(4)" class="manual-dice-btn" aria-label="Select dice result 4">4</button>
+                            <button type="button" onclick="rollDice(5)" class="manual-dice-btn" aria-label="Select dice result 5">5</button>
+                            <button type="button" onclick="rollDice(6)" class="manual-dice-btn" aria-label="Select dice result 6">6</button>
+                        </div>
+                    </div>
+                    <div id="diceResultBox" class="royal-dice" aria-live="polite" aria-label="Selected physical dice result">
+                        <span class="dice-face-value">-</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Physical Central Board Layout -->
+            <div class="flex-1 w-full flex items-center justify-center relative my-auto">
+                <!-- Inner Board Wrapper -->
+                <div id="ludoBoard" class="relative flex flex-col items-center justify-center">
+                    
+                    <!-- Vertical Finish Route (Upward from Crossroads Tile 7) -->
+                    <div class="flex flex-col-reverse items-center mb-[var(--board-gap)]">
+                        <!-- Crossroads Tile 7 physically attaches here at bottom of column -->
+                        <div id="tile-container-7-anchor"></div>
+                        <div class="flex flex-col-reverse items-center gap-[var(--board-gap)] mb-[var(--board-gap)]">
+                            <div class="ludo-tile" id="tile-8">8</div>
+                            <div class="ludo-tile" id="tile-9">9</div>
+                            <div class="ludo-tile" id="tile-10">10</div>
+                            <div class="ludo-tile" id="tile-11">11</div>
+                            <div class="ludo-tile finish-tile flex-col text-[10px]" id="tile-FINISH">
+                                <i class="fa-solid fa-crown text-gold-500 text-xs"></i>
+                                <span>FINISH</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Horizontal Path Row (START T1 -> 1..7..1 -> START T2) -->
+                    <div class="flex items-center justify-center gap-[var(--board-gap)]">
+                        <div class="ludo-tile start-tile text-[9px] text-center" id="tile-START1">START T1</div>
+                        <div class="ludo-tile" id="tile-1">1</div>
+                        <div class="ludo-tile" id="tile-2">2</div>
+                        <div class="ludo-tile" id="tile-3">3</div>
+                        <div class="ludo-tile" id="tile-4">4</div>
+                        <div class="ludo-tile" id="tile-5">5</div>
+                        <div class="ludo-tile" id="tile-6">6</div>
+                        
+                        <!-- Physical Crossroads Tile 7 (Shared DOM element) -->
+                        <div class="ludo-tile crossroads relative" id="tile-7">
+                            <span>7</span>
+                            <i class="fa-solid fa-dharmachakra absolute text-[9px] text-gold-600 opacity-40"></i>
+                        </div>
+
+                        <!-- Duplicate horizontal visually labelled checkpoints reusing identical checkpoint identity logic -->
+                        <div class="ludo-tile" id="tile-6-right">6</div>
+                        <div class="ludo-tile" id="tile-5-right">5</div>
+                        <div class="ludo-tile" id="tile-4-right">4</div>
+                        <div class="ludo-tile" id="tile-3-right">3</div>
+                        <div class="ludo-tile" id="tile-2-right">2</div>
+                        <div class="ludo-tile" id="tile-1-right">1</div>
+                        <div class="ludo-tile start-tile text-[9px] text-center" id="tile-START2">START T2</div>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- Bottom Activity Log Bar -->
+            <div class="w-full max-w-2xl bg-navy-950/80 border border-gold-600/40 rounded-lg p-1.5 h-20 flex flex-col z-20">
+                <div class="text-[10px] font-cinzel text-gold-500 font-bold flex items-center gap-1 border-b border-gold-600/20 pb-0.5 px-1">
+                    <i class="fa-solid fa-list-ul"></i> RECENT GAME LOGS
+                </div>
+                <div id="activityLog" class="flex-1 overflow-y-auto text-[11px] text-gray-300 px-1 py-0.5 space-y-0.5 font-sans">
+                    <div class="text-gray-400 italic">Game initialized. Team 1's turn to roll.</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- TEAM 2 SIDE PANEL (BLUE) -->
+        <aside class="w-[185px] min-w-[185px] max-w-[185px] h-full flex flex-col justify-between bg-navy-900/90 royal-border rounded-lg p-2.5 z-10 overflow-hidden">
+            <!-- Team 2 Header -->
+            <div id="team2Banner" class="text-center p-2 rounded-md bg-navy-800 border border-blue-600/60 shadow transition">
+                <div class="flex items-center justify-center gap-2">
+                    <span class="w-3 h-3 rounded-full bg-blue-600 inline-block border border-gold-500 shadow"></span>
+                    <h2 class="font-cinzel text-sm font-bold text-blue-400 tracking-wide">TEAM 2</h2>
+                </div>
+                <div class="text-[10px] text-gray-300 mt-0.5">BLUE KNIGHTS</div>
+            </div>
+
+            <!-- Team 2 Cards -->
+            <div class="flex flex-col gap-2 my-auto">
+                <div class="text-[11px] font-cinzel text-gold-light font-semibold text-center border-b border-gold-600/30 pb-1">
+                    ROYAL CARDS
+                </div>
+
+                <!-- Attack Card -->
+                <div id="t2-card-attack" class="playing-card available p-2 flex items-center justify-between cursor-pointer" onclick="triggerCardVerification('team2', 'attack')">
+                    <div class="flex items-center gap-2">
+                        <span class="text-blue-400 text-base font-bold">♠</span>
+                        <div>
+                            <div class="text-xs font-bold text-gray-100 font-cinzel">ATTACK</div>
+                            <div class="text-[9px] text-gray-400">Push -3 steps</div>
+                        </div>
+                    </div>
+                    <span id="t2-badge-attack" class="text-[9px] px-1.5 py-0.5 rounded bg-gold-600/20 text-gold-500 border border-gold-600/40 font-bold">READY</span>
+                </div>
+
+                <!-- Defense Card -->
+                <div id="t2-card-defense" class="playing-card available p-2 flex items-center justify-between cursor-pointer" onclick="triggerCardVerification('team2', 'defense')">
+                    <div class="flex items-center gap-2">
+                        <span class="text-gold-500 text-base font-bold">♜</span>
+                        <div>
+                            <div class="text-xs font-bold text-gray-100 font-cinzel">DEFENSE</div>
+                            <div class="text-[9px] text-gray-400">Block displacement</div>
+                        </div>
+                    </div>
+                    <span id="t2-badge-defense" class="text-[9px] px-1.5 py-0.5 rounded bg-gold-600/20 text-gold-500 border border-gold-600/40 font-bold">READY</span>
+                </div>
+
+                <!-- Lucky Card -->
+                <div id="t2-card-lucky" class="playing-card available p-2 flex items-center justify-between cursor-pointer" onclick="triggerCardVerification('team2', 'lucky')">
+                    <div class="flex items-center gap-2">
+                        <span class="text-amber-400 text-base font-bold">♦</span>
+                        <div>
+                            <div class="text-xs font-bold text-gray-100 font-cinzel">LUCKY</div>
+                            <div class="text-[9px] text-gray-400">Skip challenge</div>
+                        </div>
+                    </div>
+                    <span id="t2-badge-lucky" class="text-[9px] px-1.5 py-0.5 rounded bg-gold-600/20 text-gold-500 border border-gold-600/40 font-bold">READY</span>
+                </div>
+            </div>
+
+            <!-- Team 2 Status / Info -->
+            <div class="bg-navy-950 p-2 rounded border border-gold-600/30 text-center">
+                <span class="text-[10px] text-gray-400 block">CURRENT POSITION</span>
+                <span id="t2-pos-display" class="font-cinzel text-xs font-bold text-gold-500">START TEAM 2</span>
+            </div>
+        </aside>
+    </main>
+
+    <!-- IN-GAME MODALS & OVERLAYS -->
+
+    <!-- 1. CHALLENGE MODAL -->
+    <div id="challengeModal" class="hidden fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div class="bg-navy-900 border-2 border-gold-500 rounded-xl max-w-lg w-full p-5 shadow-2xl flex flex-col gap-4 relative">
+            <!-- Modal Header -->
+            <div class="text-center border-b border-gold-600/40 pb-2">
+                <span id="modalChallengeBadge" class="text-xs font-bold px-3 py-1 bg-gold-600/20 text-gold-500 border border-gold-600/50 rounded-full font-cinzel">CHALLENGE 1</span>
+                <h3 id="modalChallengeTitle" class="font-cinzel text-xl font-black text-gold-500 mt-2">Frame It</h3>
+            </div>
+
+            <!-- Instruction -->
+            <div class="bg-navy-950 p-3 rounded-lg border border-gold-600/30">
+                <div class="text-[11px] text-gold-light/70 font-semibold mb-1">INSTRUCTION:</div>
+                <div id="modalInstruction" class="text-xs text-gray-200 leading-relaxed">
+                    Create three sentences using the given word: one in Simple Present, one in Simple Past, and one in Simple Future.
+                </div>
+            </div>
+
+            <!-- Verbal Judge Given Input Notice -->
+            <div id="modalGivenInputNotice" class="hidden bg-amber-950/40 border border-amber-600/50 p-2.5 rounded-lg text-center">
+                <span class="text-xs font-bold text-amber-400 block font-cinzel"><i class="fa-solid fa-gavel"></i> GIVEN WORD / TOPIC</span>
+                <span class="text-[11px] text-gray-300">Provided verbally by the judge.</span>
+            </div>
+
+            <!-- Success Indicator -->
+            <div class="bg-navy-950 p-3 rounded-lg border border-gold-600/30">
+                <div class="text-[11px] text-gold-light/70 font-semibold mb-1">SUCCESS INDICATOR:</div>
+                <div id="modalSuccessIndicator" class="text-xs text-gray-300 italic leading-relaxed">
+                    Peserta mampu membuat 3 kalimat secara tepat.
+                </div>
+            </div>
+
+            <!-- Prominently Sized Clock Timer -->
+            <div class="bg-navy-950 border border-gold-600/60 p-3 rounded-xl flex flex-col items-center justify-center gap-2">
+                <div class="text-[10px] text-gray-400 font-cinzel tracking-widest">COUNTDOWN TIMER</div>
+                <div id="timerDisplay" class="font-cinzel font-black text-4xl text-gold-500 tracking-wider font-mono">01:00</div>
+                
+                <div class="flex items-center gap-2 mt-1">
+                    <button onclick="startTimer()" class="px-3 py-1 bg-emerald-900 hover:bg-emerald-800 text-emerald-200 text-xs font-bold rounded border border-emerald-600 transition">
+                        <i class="fa-solid fa-play"></i> START
+                    </button>
+                    <button onclick="pauseTimer()" class="px-3 py-1 bg-amber-900 hover:bg-amber-800 text-amber-200 text-xs font-bold rounded border border-amber-600 transition">
+                        <i class="fa-solid fa-pause"></i> PAUSE
+                    </button>
+                    <button onclick="resetTimer()" class="px-3 py-1 bg-gray-800 hover:bg-gray-700 text-gray-200 text-xs font-bold rounded border border-gray-600 transition">
+                        <i class="fa-solid fa-rotate-left"></i> RESET
+                    </button>
+                </div>
+            </div>
+
+            <!-- Lucky Card Decision Banner (Appears only after revealing challenge) -->
+            <div id="luckyDecisionBanner" class="hidden bg-amber-950/80 border-2 border-amber-500 p-3 rounded-xl flex flex-col items-center gap-2">
+                <div class="text-xs font-bold text-amber-300 font-cinzel"><i class="fa-solid fa-gem"></i> LUCKY CARD AVAILABLE</div>
+                <p class="text-[11px] text-amber-100 text-center">You have seen the challenge. Do you want to skip this challenge?</p>
+                <div class="flex items-center gap-3 mt-1">
+                    <button onclick="chooseContinueChallenge()" class="px-3 py-1.5 bg-navy-800 hover:bg-navy-700 text-gold-light text-xs font-bold rounded border border-gold-600">
+                        CONTINUE CHALLENGE
+                    </button>
+                    <button onclick="chooseUseLuckyCard()" class="px-3 py-1.5 bg-amber-600 hover:bg-amber-500 text-navy-950 text-xs font-black rounded border border-amber-400">
+                        USE LUCKY CARD
+                    </button>
+                </div>
+            </div>
+
+            <!-- Judge Selection Action Buttons -->
+            <div id="judgeActionButtons" class="flex items-center justify-between gap-3 border-t border-gold-600/30 pt-3">
+                <button onclick="resolveChallengeResult(false)" class="flex-1 py-2 bg-red-900 hover:bg-red-800 text-red-100 text-xs font-black font-cinzel rounded-lg border border-red-500 transition shadow">
+                    <i class="fa-solid fa-xmark"></i> FAILED
+                </button>
+                <button onclick="resolveChallengeResult(true)" class="flex-1 py-2 bg-emerald-800 hover:bg-emerald-700 text-emerald-100 text-xs font-black font-cinzel rounded-lg border border-emerald-400 transition shadow">
+                    <i class="fa-solid fa-check"></i> SUCCESS
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 2. IN-GAME CARD VERIFICATION MODAL -->
+    <div id="cardVerificationModal" class="hidden fixed inset-0 bg-black/85 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div class="bg-navy-900 border-2 border-gold-500 rounded-xl max-w-sm w-full p-5 shadow-2xl text-center flex flex-col gap-3">
+            <i class="fa-solid fa-shield-halved text-gold-500 text-3xl"></i>
+            <h3 class="font-cinzel text-lg font-bold text-gold-500">VERIFY CARD ACTION</h3>
+            
+            <div id="verificationDetails" class="bg-navy-950 p-3 rounded-lg border border-gold-600/40 text-xs text-gray-200">
+                <!-- Dynamic verification details injected here -->
+            </div>
+
+            <p class="text-[11px] text-gray-400 italic">Using a card will consume your team's entire turn!</p>
+
+            <div class="flex items-center gap-3 mt-2">
+                <button id="cancelCardActionBtn" onclick="closeModal('cardVerificationModal')" class="flex-1 py-1.5 bg-gray-800 hover:bg-gray-700 text-gray-300 text-xs font-bold rounded border border-gray-600">
+                    CANCEL
+                </button>
+                <button id="confirmCardActionBtn" class="flex-1 py-1.5 bg-gold-600 hover:bg-gold-500 text-navy-950 text-xs font-black rounded border border-gold-400">
+                    CONFIRM & USE
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 3. RULES MODAL -->
+    <div id="rulesModal" class="hidden fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div class="bg-navy-900 border-2 border-gold-500 rounded-xl max-w-xl w-full p-5 shadow-2xl flex flex-col gap-3 max-h-[85vh]">
+            <div class="flex items-center justify-between border-b border-gold-600/40 pb-2">
+                <h3 class="font-cinzel text-lg font-bold text-gold-500"><i class="fa-solid fa-scroll"></i> ROYAL GAME RULES</h3>
+                <button onclick="closeModal('rulesModal')" class="text-gray-400 hover:text-white text-base">&times;</button>
+            </div>
+            
+            <div class="overflow-y-auto space-y-3 text-xs text-gray-300 pr-1 leading-relaxed">
+                <div class="bg-navy-950 p-2.5 rounded border border-gold-600/20">
+                    <span class="font-bold text-gold-500 block mb-0.5">1. Movement & Checkpoints:</span>
+                    Teams move step-by-step according to dice rolls. To reach FINISH, you must land on it with an EXACT dice roll. Overshooting produces no movement.
+                </div>
+                <div class="bg-navy-950 p-2.5 rounded border border-gold-600/20">
+                    <span class="font-bold text-gold-500 block mb-0.5">2. Crossroads & Vertical Path:</span>
+                    Checkpoint 7 is the single shared crossroads. The path to FINISH rises directly UPWARD from Checkpoint 7 (7 → 8 → 9 → 10 → 11 → FINISH).
+                </div>
+                <div class="bg-navy-950 p-2.5 rounded border border-gold-600/20">
+                    <span class="font-bold text-gold-500 block mb-0.5">3. Card Turn Constraint:</span>
+                    Using ANY card (Attack, Defense, or Lucky) consumes your entire turn. You CANNOT roll the dice after using a card!
+                </div>
+                <div class="bg-navy-950 p-2.5 rounded border border-gold-600/20">
+                    <span class="font-bold text-gold-500 block mb-0.5">4. Battles & Defense:</span>
+                    Landing on an occupied tile triggers a Battle. Winning forces the defender back to their stored previous valid checkpoint unless their ACTIVE Defense Card blocks it.
+                </div>
+                <div class="bg-navy-950 p-2.5 rounded border border-gold-600/20">
+                    <span class="font-bold text-gold-500 block mb-0.5">5. Judge Evaluation:</span>
+                    The judge manually determines SUCCESS or FAILED. Timer expiration does not auto-fail a challenge.
+                </div>
+            </div>
+
+            <button onclick="closeModal('rulesModal')" class="w-full py-2 bg-gold-600 hover:bg-gold-500 text-navy-950 font-cinzel font-bold text-xs rounded border border-gold-400 mt-2">
+                CLOSE RULES
+            </button>
+        </div>
+    </div>
+
+    <!-- BATTLE ALERT: shown when both teams meet on shared tiles 7–11 -->
+    <div id="battleAlertOverlay" class="hidden fixed inset-0 z-[60] flex items-center justify-center bg-black/75 backdrop-blur-sm">
+        <div class="text-center px-10 py-8 rounded-2xl border-4 border-gold-500 bg-navy-900 shadow-2xl" style="box-shadow:0 0 45px rgba(255,215,0,.55)">
+            <div class="text-5xl mb-3 text-gold-500"><i class="fa-solid fa-swords"></i></div>
+            <div class="font-cinzelDeco font-black text-5xl md:text-7xl tracking-widest text-gold-500">BATTLE!</div>
+            <div id="battleAlertTile" class="font-cinzel text-sm mt-3 text-ivory">SHARED TILE</div>
+        </div>
+    </div>
+
+    <!-- 4. SUCCESS & FAILED FULL-SCREEN RESULT OVERLAYS -->
+    <div id="resultOverlay" class="hidden fixed inset-0 z-50 flex items-center justify-center backdrop-blur-md transition-all duration-300">
+        <div id="resultBox" class="p-8 rounded-2xl border-4 text-center shadow-2xl flex flex-col items-center gap-3 transform scale-110">
+            <i id="resultIcon" class="text-5xl mb-1"></i>
+            <h2 id="resultText" class="font-cinzelDeco text-4xl font-black tracking-widest">SUCCESS!</h2>
+            <div id="resultSubtext" class="text-sm font-cinzel tracking-wider text-gray-200">CHALLENGE COMPLETED</div>
+        </div>
+    </div>
+
+    <!-- 5. ROYAL VICTORY OVERLAY -->
+    <div id="victoryOverlay" class="hidden fixed inset-0 bg-navy-950/95 z-50 flex flex-col items-center justify-center p-6 text-center">
+        <div class="max-w-md w-full bg-navy-900 border-4 border-gold-500 rounded-2xl p-8 shadow-2xl flex flex-col items-center gap-4 royal-border relative">
+            <i class="fa-solid fa-crown text-6xl text-gold-500 animate-bounce"></i>
+            <h2 class="font-cinzelDeco text-4xl font-black text-gold-500 tracking-wider">VICTORY!</h2>
+            <div id="victoryTeamText" class="font-cinzel text-2xl font-bold text-red-400">TEAM 1 WINS THE GAME</div>
+            <p class="text-xs text-gray-300">By successfully reaching the Royal FINISH tile!</p>
+            
+            <button onclick="executeResetGame()" class="mt-4 px-6 py-2.5 bg-gold-600 hover:bg-gold-500 text-navy-950 font-cinzel font-black text-sm rounded-lg border border-gold-400 shadow-xl transition transform hover:scale-105">
+                PLAY AGAIN
+            </button>
+        </div>
+    </div>
+
+    <!-- JAVASCRIPT GAME LOGIC -->
+    <script>
+        /* CHALLENGE DATA REPOSITORY */
+        const challenges = {
+            1: { id: 1, title: "Frame It", instruction: "Create three sentences using the given word: one in Simple Present, one in Simple Past, and one in Simple Future.", successIndicator: "Peserta mampu membuat 3 kalimat: 1 Simple Present, 1 Simple Past, dan 1 Simple Future secara tepat.", duration: 60, requiresGivenInput: true },
+            2: { id: 2, title: "One Minute Speech", instruction: "Give a one-minute speech about the topic given by the judge.", successIndicator: "Peserta mampu berbicara selama 1 menit mengenai topik yang diberikan dengan isi yang sesuai.", duration: 60, requiresGivenInput: true },
+            3: { id: 3, title: "Word Builder", instruction: "Create a meaningful sentence using the given word.", successIndicator: "Peserta mampu membuat satu kalimat yang benar dan bermakna menggunakan kata yang diberikan.", duration: 60, requiresGivenInput: true },
+            4: { id: 4, title: "Introduction", instruction: "Introduce one of yourself. Mention your name and some basic information about you.", successIndicator: "Peserta mampu memperkenalkan diri atau salah satu anggota kelompok menggunakan bahasa Inggris.", duration: 60, requiresGivenInput: false },
+            5: { id: 5, title: "Reverse", instruction: "Choose a word and give its opposite.", successIndicator: "Peserta mampu memilih satu kata dan menyebutkan antonimnya dengan tepat.", duration: 60, requiresGivenInput: false },
+            6: { id: 6, title: "Forbidden Word", instruction: "Talk about the given topic for one minute without saying the forbidden word.", successIndicator: "Peserta mampu berbicara selama 1 menit mengenai topik yang diberikan tanpa menyebutkan kata yang dilarang.", duration: 60, requiresGivenInput: true },
+            7: { id: 7, title: "Vocabulary Challenge", instruction: "Say 10 English words related to the given topic.", successIndicator: "Peserta mampu menyebutkan 10 kosakata bahasa Inggris yang sesuai dengan tema yang ditentukan.", duration: 60, requiresGivenInput: true },
+            8: { id: 8, title: "Spell It", instruction: "Choose a word and spell it together, with each member saying one letter.", successIndicator: "Peserta mampu mengeja kata yang dipilih secara bergantian dengan urutan huruf yang benar.", duration: 60, requiresGivenInput: false },
+            9: { id: 9, title: "Sentence Transformation", instruction: "Make one positive sentence, then change it into negative and question forms.", successIndicator: "Peserta mampu membuat kalimat positif lalu mengubahnya menjadi negatif dan interogatif dengan struktur tepat.", duration: 60, requiresGivenInput: false },
+            10: { id: 10, title: "Active–Passive", instruction: "Make one active sentence, then change it into passive voice.", successIndicator: "Peserta mampu membuat kalimat aktif dan mengubahnya menjadi pasif dengan struktur tepat.", duration: 60, requiresGivenInput: false },
+            11: { id: 11, title: "Chain One Word", instruction: "Repeat the sentence and change one word. Continue the chain with your teammates.", successIndicator: "Peserta mampu mengulang kalimat sebelumnya dan mengubah satu kata secara bergantian hingga seluruh anggota mendapat giliran.", duration: 60, requiresGivenInput: false }
+        };
+
+        /* PATH DEFINITIONS */
+        const TEAM1_PATH = ['START1', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', 'FINISH'];
+        const TEAM2_PATH = ['START2', '1-right', '2-right', '3-right', '4-right', '5-right', '6-right', '7', '8', '9', '10', '11', 'FINISH'];
+
+        /* CENTRAL GAME STATE */
+        let gameState = {
+            team1PositionIndex: 0,
+            team2PositionIndex: 0,
+            team1PreviousIndex: 0,
+            team2PreviousIndex: 0,
+            team1Cards: { attack: "AVAILABLE", defense: "AVAILABLE", lucky: "AVAILABLE" },
+            team2Cards: { attack: "AVAILABLE", defense: "AVAILABLE", lucky: "AVAILABLE" },
+            currentTurn: "team1", // "team1" or "team2"
+            currentChallengeKey: null,
+            timer: 60,
+            timerRunning: false,
+            timerInterval: null,
+            diceValue: null,
+            diceRolling: false,
+            battleActive: false,
+            battleAttacker: null,
+            battleDefender: null,
+            preRollIndex: 0
+        };
+
+        /* PAWN DOM ELEMENTS */
+        let pawn1El, pawn2El;
+
+        /* INITIALIZATION */
+        window.onload = function () {
+            createPawns();
+            updateUI();
+            logActivity("Game started. Team 1's turn to roll.");
+            
+            // Re-bind Fullscreen change listener
+            document.addEventListener("fullscreenchange", handleFullscreenChange);
+        };
+
+        function createPawns() {
+            pawn1El = document.createElement('div');
+            pawn1El.className = 'pawn pawn-team1';
+            pawn1El.innerHTML = '<i class="fa-solid fa-chess-pawn"></i>';
+            pawn1El.id = 'pawn-1';
+
+            pawn2El = document.createElement('div');
+            pawn2El.className = 'pawn pawn-team2';
+            pawn2El.innerHTML = '<i class="fa-solid fa-chess-knight"></i>';
+            pawn2El.id = 'pawn-2';
+
+            positionPawns();
+        }
+
+        function positionPawns() {
+            const tile1Id = 'tile-' + TEAM1_PATH[gameState.team1PositionIndex];
+            const tile2Id = 'tile-' + TEAM2_PATH[gameState.team2PositionIndex];
+
+            const tile1El = document.getElementById(tile1Id);
+            const tile2El = document.getElementById(tile2Id);
+
+            if (tile1El && pawn1El) {
+                tile1El.appendChild(pawn1El);
+            }
+            if (tile2El && pawn2El) {
+                tile2El.appendChild(pawn2El);
+            }
+        }
+
+        /* LOGGING UTILITY */
+        function logActivity(text) {
+            const logContainer = document.getElementById('activityLog');
+            const entry = document.createElement('div');
+            entry.className = "py-0.5 border-b border-gray-800/40 flex items-center gap-1";
+            entry.innerHTML = `<span class="text-gold-500">▶</span> <span>${text}</span>`;
+            logContainer.insertBefore(entry, logContainer.firstChild);
+        }
+
+        /* UI STATE RENDERER */
+        function updateUI() {
+            // Turn Indicator
+            const turnEl = document.getElementById('turnIndicator');
+            if (gameState.currentTurn === 'team1') {
+                turnEl.textContent = 'TEAM 1';
+                turnEl.className = 'font-cinzel font-black text-sm px-2.5 py-0.5 rounded text-red-400 bg-red-950/80 border border-red-600 shadow turn-glow';
+                document.getElementById('team1Banner').classList.add('border-gold-500');
+                document.getElementById('team2Banner').classList.remove('border-gold-500');
+            } else {
+                turnEl.textContent = 'TEAM 2';
+                turnEl.className = 'font-cinzel font-black text-sm px-2.5 py-0.5 rounded text-blue-400 bg-blue-950/80 border border-blue-600 shadow turn-glow';
+                document.getElementById('team2Banner').classList.add('border-gold-500');
+                document.getElementById('team1Banner').classList.remove('border-gold-500');
+            }
+
+            // Positions Display
+            document.getElementById('t1-pos-display').textContent = getTileDisplayName(TEAM1_PATH[gameState.team1PositionIndex]);
+            document.getElementById('t2-pos-display').textContent = getTileDisplayName(TEAM2_PATH[gameState.team2PositionIndex]);
+
+            // Cards UI Update
+            updateTeamCardsUI('team1', gameState.team1Cards);
+            updateTeamCardsUI('team2', gameState.team2Cards);
+
+            // Manual dice buttons stay disabled while moving or waiting for challenge resolution.
+            const diceButtons = document.querySelectorAll('.manual-dice-btn');
+            diceButtons.forEach(button => {
+                button.disabled = gameState.diceRolling;
+            });
+
+            positionPawns();
+        }
+
+        function getTileDisplayName(tileCode) {
+            if (tileCode === 'START1') return 'START TEAM 1';
+            if (tileCode === 'START2') return 'START TEAM 2';
+            if (tileCode.includes('-right')) return 'TILE ' + tileCode.replace('-right', '');
+            return 'TILE ' + tileCode;
+        }
+
+        function updateTeamCardsUI(team, cardsState) {
+            const prefix = team === 'team1' ? 't1' : 't2';
+            ['attack', 'defense', 'lucky'].forEach(card => {
+                const cardEl = document.getElementById(`${prefix}-card-${card}`);
+                const badgeEl = document.getElementById(`${prefix}-badge-${card}`);
+                const status = cardsState[card];
+
+                cardEl.className = 'playing-card p-2 flex items-center justify-between cursor-pointer ';
+                if (status === 'AVAILABLE') {
+                    cardEl.classList.add('available');
+                    badgeEl.textContent = 'READY';
+                    badgeEl.className = 'text-[9px] px-1.5 py-0.5 rounded bg-gold-600/20 text-gold-500 border border-gold-600/40 font-bold';
+                } else if (status === 'ACTIVE') {
+                    cardEl.classList.add('active-card');
+                    badgeEl.textContent = 'ACTIVE';
+                    badgeEl.className = 'text-[9px] px-1.5 py-0.5 rounded bg-sky-500/20 text-sky-400 border border-sky-400/50 font-bold';
+                } else {
+                    cardEl.classList.add('used-card');
+                    badgeEl.textContent = 'USED';
+                    badgeEl.className = 'text-[9px] px-1.5 py-0.5 rounded bg-gray-800 text-gray-500 border border-gray-700 font-bold';
+                }
+
+                // Defense is offered through the Battle decision modal only.
+                if (card === 'defense') {
+                    cardEl.classList.add('cursor-not-allowed');
+                    cardEl.title = 'Defense Card is offered only after losing a Battle';
+                } else {
+                    cardEl.title = status === 'USED' ? 'This card has already been used' : '';
+                }
+            });
+        }
+
+        /* MANUAL DICE LOGIC */
+        function rollDice(rollVal) {
+            // Prevent duplicate input while movement or a challenge is being processed.
+            if (gameState.diceRolling) return;
+
+            if (!Number.isInteger(rollVal) || rollVal < 1 || rollVal > 6) {
+                alert("Pilih angka dadu dari 1 sampai 6.");
+                return;
+            }
+
+            gameState.diceRolling = true;
+            gameState.diceValue = rollVal;
+
+            const diceResult = document.getElementById('diceResultBox');
+            const diceValueEl = diceResult.querySelector('.dice-face-value');
+            const diceButtons = document.querySelectorAll('.manual-dice-btn');
+
+            diceButtons.forEach(button => { button.disabled = true; });
+            diceValueEl.textContent = rollVal;
+            diceResult.classList.remove('dice-stop');
+            void diceResult.offsetWidth;
+            diceResult.classList.add('dice-stop');
+
+            const teamName = gameState.currentTurn === 'team1' ? 'Team 1' : 'Team 2';
+            logActivity(`${teamName} entered physical dice result: ${rollVal}`);
+            updateUI();
+
+            // Keep the reveal animation, then use the operator-entered result for movement.
+            setTimeout(() => {
+                diceResult.classList.remove('dice-stop');
+                processMovement(rollVal);
+            }, 500);
+        }
+
+        function setDiceDisplay(value) {
+            const diceValueEl = document.querySelector('#diceResultBox .dice-face-value');
+            if (diceValueEl) diceValueEl.textContent = value;
+        }
+
+        /* MOVEMENT ENGINE & EXACT FINISH RULE */
+        async function processMovement(steps) {
+            const isTeam1 = gameState.currentTurn === 'team1';
+            const currentPath = isTeam1 ? TEAM1_PATH : TEAM2_PATH;
+            const currentIndex = isTeam1 ? gameState.team1PositionIndex : gameState.team2PositionIndex;
+            const remainingSteps = (currentPath.length - 1) - currentIndex;
+
+            // EXACT FINISH / OVERSHOOT RULE
+            if (steps > remainingSteps) {
+                logActivity(`${isTeam1 ? 'Team 1' : 'Team 2'} needs exactly ${remainingSteps} to reach FINISH. Cannot move.`);
+                gameState.diceRolling = false;
+                switchTurn();
+                return;
+            }
+
+            // Record pre-roll position for return on failure
+            gameState.preRollIndex = currentIndex;
+
+            // Step-by-step animation
+            let targetIndex = currentIndex + steps;
+            for (let i = currentIndex + 1; i <= targetIndex; i++) {
+                if (isTeam1) {
+                    gameState.team1PreviousIndex = gameState.team1PositionIndex;
+                    gameState.team1PositionIndex = i;
+                } else {
+                    gameState.team2PreviousIndex = gameState.team2PositionIndex;
+                    gameState.team2PositionIndex = i;
+                }
+                positionPawns();
+                await new Promise(res => setTimeout(res, 350));
+            }
+
+            // Check if landed exactly on FINISH
+            if (targetIndex === currentPath.length - 1) {
+                triggerVictory(isTeam1 ? 'TEAM 1' : 'TEAM 2');
+                return;
+            }
+
+            // Check for BATTLE OR NORMAL LANDING
+            checkLandingOutcome(targetIndex);
+        }
+
+        function checkLandingOutcome(landedIndex) {
+            const isTeam1 = gameState.currentTurn === 'team1';
+            const landedTileCode = isTeam1 ? TEAM1_PATH[landedIndex] : TEAM2_PATH[landedIndex];
+
+            // Normalize tile code to get numeric checkpoint ID
+            const numericKey = getNumericKeyFromTileCode(landedTileCode);
+
+            // Check if opposing pawn is on the same physical tile
+            const opponentPositionIndex = isTeam1 ? gameState.team2PositionIndex : gameState.team1PositionIndex;
+            const opponentPath = isTeam1 ? TEAM2_PATH : TEAM1_PATH;
+            const opponentTileCode = opponentPath[opponentPositionIndex];
+
+            // Battle is only possible on shared neutral tiles 7–11.
+            // Tiles 1–6 belong to separate team routes even when their labels match.
+            const isSharedBattleTile = Number.isInteger(numericKey) && numericKey >= 7 && numericKey <= 11;
+            const isBattle = isSharedBattleTile &&
+                getNumericKeyFromTileCode(opponentTileCode) === numericKey;
+
+            if (isBattle) {
+                gameState.battleActive = true;
+                gameState.battleAttacker = gameState.currentTurn;
+                gameState.battleDefender = isTeam1 ? 'team2' : 'team1';
+                logActivity(`BATTLE TRIGGERED on Tile ${numericKey}! ${gameState.battleAttacker === 'team1' ? 'Team 1' : 'Team 2'} challenges!`);
+
+                const battleOverlay = document.getElementById('battleAlertOverlay');
+                document.getElementById('battleAlertTile').textContent = `TEAM MEETING ON TILE ${numericKey}`;
+                battleOverlay.classList.remove('hidden');
+                setTimeout(() => {
+                    battleOverlay.classList.add('hidden');
+                    openChallenge(numericKey);
+                }, 1400);
+                return;
+            } else {
+                gameState.battleActive = false;
+                gameState.battleAttacker = null;
+                gameState.battleDefender = null;
+            }
+
+            // Open Challenge Modal for this numeric checkpoint
+            openChallenge(numericKey);
+        }
+
+        function getNumericKeyFromTileCode(code) {
+            if (code === 'START1' || code === 'START2' || code === 'FINISH') return null;
+            let clean = code.replace('-right', '');
+            return parseInt(clean, 10);
+        }
+
+        /* CHALLENGE & LUCKY CARD FLOW */
+        function openChallenge(challengeKey) {
+            if (!challengeKey || !challenges[challengeKey]) {
+                // If landed on START, switch turn
+                gameState.diceRolling = false;
+                switchTurn();
+                return;
+            }
+
+            gameState.currentChallengeKey = challengeKey;
+            const ch = challenges[challengeKey];
+
+            document.getElementById('modalChallengeBadge').textContent = `CHALLENGE ${ch.id}`;
+            document.getElementById('modalChallengeTitle').textContent = ch.title;
+            document.getElementById('modalInstruction').textContent = ch.instruction;
+            document.getElementById('modalSuccessIndicator').textContent = ch.successIndicator;
+
+            // Verbal Given Input Notice handling
+            const noticeEl = document.getElementById('modalGivenInputNotice');
+            if (ch.requiresGivenInput) {
+                noticeEl.classList.remove('hidden');
+            } else {
+                noticeEl.classList.add('hidden');
+            }
+
+            // Reset Timer
+            resetTimer();
+
+            // LUCKY CARD OFFER (ONLY AFTER REVEALING CHALLENGE)
+            const currentTeamCards = gameState.currentTurn === 'team1' ? gameState.team1Cards : gameState.team2Cards;
+            const luckyBanner = document.getElementById('luckyDecisionBanner');
+
+            if (currentTeamCards.lucky === 'AVAILABLE') {
+                luckyBanner.classList.remove('hidden');
+            } else {
+                luckyBanner.classList.add('hidden');
+            }
+
+            openModal('challengeModal');
+        }
+
+        function chooseContinueChallenge() {
+            document.getElementById('luckyDecisionBanner').classList.add('hidden');
+            logActivity(`${gameState.currentTurn === 'team1' ? 'Team 1' : 'Team 2'} chose to continue the challenge.`);
+        }
+
+        function chooseUseLuckyCard() {
+            closeModal('challengeModal');
+            document.getElementById('luckyDecisionBanner').classList.add('hidden');
+
+            // Mark Lucky card as USED
+            if (gameState.currentTurn === 'team1') {
+                gameState.team1Cards.lucky = 'USED';
+            } else {
+                gameState.team2Cards.lucky = 'USED';
+            }
+
+            logActivity(`${gameState.currentTurn === 'team1' ? 'Team 1' : 'Team 2'} USED LUCKY CARD! Challenge skipped.`);
+            showResultOverlay(true, "LUCKY CARD USED!", "CHALLENGE SKIPPED", () => {
+                gameState.diceRolling = false;
+                switchTurn();
+            });
+        }
+
+        /* TIMER CONTROLLER */
+        function startTimer() {
+            if (gameState.timerRunning) return;
+            gameState.timerRunning = true;
+            gameState.timerInterval = setInterval(() => {
+                if (gameState.timer > 0) {
+                    gameState.timer--;
+                    renderTimer();
+                } else {
+                    pauseTimer();
+                    document.getElementById('timerDisplay').textContent = "TIME'S UP";
+                }
+            }, 1000);
+        }
+
+        function pauseTimer() {
+            gameState.timerRunning = false;
+            clearInterval(gameState.timerInterval);
+        }
+
+        function resetTimer() {
+            pauseTimer();
+            gameState.timer = 60;
+            renderTimer();
+        }
+
+        function renderTimer() {
+            const mins = Math.floor(gameState.timer / 60).toString().padStart(2, '0');
+            const secs = (gameState.timer % 60).toString().padStart(2, '0');
+            document.getElementById('timerDisplay').textContent = `${mins}:${secs}`;
+        }
+
+        /* CHALLENGE RESOLUTION (JUDGE EVALUATION) */
+        async function resolveChallengeResult(isSuccess) {
+            closeModal('challengeModal');
+            pauseTimer();
+
+            const isTeam1 = gameState.currentTurn === 'team1';
+
+            if (isSuccess) {
+                // Save the position from before this move as the last settled checkpoint.
+                // Intermediate animation tiles do not become checkpoints.
+                if (isTeam1) {
+                    gameState.team1PreviousIndex = gameState.preRollIndex;
+                } else {
+                    gameState.team2PreviousIndex = gameState.preRollIndex;
+                }
+
+                if (gameState.battleActive) {
+                    // The current team is the Battle attacker; the opponent is the defender.
+                    const defenderTeam = gameState.battleDefender;
+                    const attackerTeam = gameState.battleAttacker;
+                    logActivity(`${isTeam1 ? 'Team 1' : 'Team 2'} WON THE BATTLE!`);
+
+                    showResultOverlay(
+                        true,
+                        'BATTLE VICTORY!',
+                        'DEFENDER MUST RETURN TO CHECKPOINT',
+                        async () => {
+                            // Give the losing team the decision before moving its pawn.
+                            gameState.currentTurn = defenderTeam;
+                            updateUI();
+
+                            const defenderCards = defenderTeam === 'team1'
+                                ? gameState.team1Cards
+                                : gameState.team2Cards;
+
+                            if (defenderCards.defense === 'AVAILABLE') {
+                                offerBattleDefense(defenderTeam, attackerTeam);
+                            } else {
+                                await displaceDefenderToPrevious(defenderTeam);
+                                gameState.battleActive = false;
+                                gameState.diceRolling = false;
+                                gameState.currentTurn = attackerTeam;
+                                setDiceDisplay('-');
+                                updateUI();
+                            }
+                        }
+                    );
+                } else {
+                    logActivity(`${isTeam1 ? 'Team 1' : 'Team 2'} SUCCESSFULLY completed Challenge!`);
+                    showResultOverlay(true, 'SUCCESS!', 'CHALLENGE COMPLETED', () => {
+                        gameState.diceRolling = false;
+                        switchTurn();
+                    });
+                }
+            } else {
+                logActivity(`${isTeam1 ? 'Team 1' : 'Team 2'} FAILED Challenge! Returning to pre-roll position.`);
+                showResultOverlay(false, 'FAILED', 'RETURNING TO PREVIOUS TILE', async () => {
+                    await returnChallengerToPreRoll();
+                    gameState.battleActive = false;
+                    gameState.diceRolling = false;
+                    switchTurn();
+                });
+            }
+        }
+
+        /* DISPLACEMENT & RETURN ANIMATIONS */
+        async function returnChallengerToPreRoll() {
+            const isTeam1 = gameState.currentTurn === 'team1';
+            const targetIdx = gameState.preRollIndex;
+
+            if (isTeam1) {
+                for (let i = gameState.team1PositionIndex - 1; i >= targetIdx; i--) {
+                    gameState.team1PositionIndex = i;
+                    positionPawns();
+                    await new Promise(res => setTimeout(res, 250));
+                }
+            } else {
+                for (let i = gameState.team2PositionIndex - 1; i >= targetIdx; i--) {
+                    gameState.team2PositionIndex = i;
+                    positionPawns();
+                    await new Promise(res => setTimeout(res, 250));
+                }
+            }
+        }
+
+        async function displaceDefenderToPrevious(defenderTeam) {
+            const isTeam1 = defenderTeam === 'team1';
+            const currentPath = isTeam1 ? TEAM1_PATH : TEAM2_PATH;
+            const currentIndex = isTeam1
+                ? gameState.team1PositionIndex
+                : gameState.team2PositionIndex;
+
+            // Return to the last settled checkpoint before the defender's successful move.
+            // Example: if the pawn settled on tile 9 after moving from tile 7, return to 7.
+            const savedCheckpoint = isTeam1
+                ? gameState.team1PreviousIndex
+                : gameState.team2PreviousIndex;
+            const targetIdx = Math.max(0, Math.min(savedCheckpoint, currentPath.length - 1));
+
+            for (let i = currentIndex - 1; i >= targetIdx; i--) {
+                if (isTeam1) {
+                    gameState.team1PositionIndex = i;
+                } else {
+                    gameState.team2PositionIndex = i;
+                }
+                positionPawns();
+                await new Promise(resolve => setTimeout(resolve, 250));
+            }
+
+            if (isTeam1) {
+                gameState.team1PositionIndex = targetIdx;
+            } else {
+                gameState.team2PositionIndex = targetIdx;
+            }
+            positionPawns();
+            updateUI();
+            logActivity(`${defenderTeam.toUpperCase()} returned to checkpoint ${getTileDisplayName(currentPath[targetIdx])}.`);
+        }
+
+        /* TURN SWITCHING LOGIC */
+        function switchTurn() {
+            gameState.currentTurn = gameState.currentTurn === 'team1' ? 'team2' : 'team1';
+            gameState.diceRolling = false;
+            setDiceDisplay('-');
+            updateUI();
+        }
+
+        /* IN-GAME CARD ACTION VERIFICATION */
+        let pendingCardAction = null;
+
+        function triggerCardVerification(team, cardType) {
+            // Defense may only be used from the automatic Battle-loser offer.
+            if (cardType === 'defense') {
+                alert('Defense Card can only be used after losing a Battle when backward displacement is required.');
+                return;
+            }
+
+            if (gameState.currentTurn !== team) {
+                alert(`It is currently ${gameState.currentTurn === 'team1' ? 'Team 1' : 'Team 2'}'s turn!`);
+                return;
+            }
+
+            const cards = team === 'team1' ? gameState.team1Cards : gameState.team2Cards;
+            if (cards[cardType] !== 'AVAILABLE') return;
+
+            pendingCardAction = { team, cardType };
+            const detailsEl = document.getElementById('verificationDetails');
+            let desc = '';
+            if (cardType === 'attack') desc = 'ATTACK CARD: Push opponent back 3 steps.';
+            if (cardType === 'lucky') desc = 'LUCKY CARD: Use to skip a challenge when landed.';
+
+            detailsEl.innerHTML = `
+                <div class="font-bold text-gold-500 font-cinzel text-sm">${team.toUpperCase()} — ${cardType.toUpperCase()} CARD</div>
+                <div class="mt-1">${desc}</div>
+            `;
+
+            document.getElementById('confirmCardActionBtn').onclick = executeVerifiedCardAction;
+            resetDefenseDialog();
+            openModal('cardVerificationModal');
+        }
+
+        /* BATTLE-ONLY DEFENSE CARD OFFER */
+        function offerBattleDefense(defenderTeam, attackerTeam) {
+            pendingCardAction = {
+                team: defenderTeam,
+                cardType: 'defense',
+                battleDefenseOffer: true,
+                attackerTeam: attackerTeam
+            };
+
+            document.getElementById('verificationDetails').innerHTML = `
+                <div class="font-bold text-gold-500 font-cinzel text-sm">DEFENSE CARD AVAILABLE</div>
+                <div class="mt-2">Your team lost the Battle and must return to the previous checkpoint.</div>
+                <div class="mt-2 text-emerald-400 font-bold">USE DEFENSE CARD to stay on the current tile.</div>
+                <div class="mt-1 text-amber-300">Your turn will be skipped if you use this card.</div>
+            `;
+
+            document.getElementById('confirmCardActionBtn').onclick = executeVerifiedCardAction;
+            document.getElementById('confirmCardActionBtn').textContent = 'USE DEFENSE CARD';
+
+            const cancelBtn = document.getElementById('cancelCardActionBtn');
+            cancelBtn.textContent = 'DECLINE';
+            cancelBtn.onclick = declineBattleDefense;
+
+            openModal('cardVerificationModal');
+        }
+
+        async function declineBattleDefense() {
+            closeModal('cardVerificationModal');
+            if (!pendingCardAction || !pendingCardAction.battleDefenseOffer) return;
+
+            const defenderTeam = pendingCardAction.team;
+            const attackerTeam = pendingCardAction.attackerTeam;
+            pendingCardAction = null;
+
+            logActivity(`${defenderTeam.toUpperCase()} declined DEFENSE CARD.`);
+            await displaceDefenderToPrevious(defenderTeam);
+
+            gameState.battleActive = false;
+            gameState.diceRolling = false;
+            // Declining Defense means the pawn retreats, but the defending team
+            // keeps its turn and may roll the dice after the retreat.
+            gameState.currentTurn = defenderTeam;
+            setDiceDisplay('-');
+            resetDefenseDialog();
+            updateUI();
+            logActivity(`${defenderTeam.toUpperCase()} declined DEFENSE CARD, retreated to the previous checkpoint, and may roll the dice now.`);
+        }
+
+        function resetDefenseDialog() {
+            const cancelBtn = document.getElementById('cancelCardActionBtn');
+            if (cancelBtn) {
+                cancelBtn.textContent = 'CANCEL';
+                cancelBtn.onclick = () => closeModal('cardVerificationModal');
+            }
+            const confirmBtn = document.getElementById('confirmCardActionBtn');
+            if (confirmBtn) confirmBtn.textContent = 'CONFIRM & USE';
+        }
+
+        function executeVerifiedCardAction() {
+            if (!pendingCardAction) return;
+            const { team, cardType } = pendingCardAction;
+            const isTeam1 = team === 'team1';
+            const cards = isTeam1 ? gameState.team1Cards : gameState.team2Cards;
+
+            // Defense can only be consumed through the Battle-loser offer.
+            if (cardType === 'defense') {
+                if (!pendingCardAction.battleDefenseOffer ||
+                    !gameState.battleActive ||
+                    cards.defense !== 'AVAILABLE') {
+                    closeModal('cardVerificationModal');
+                    pendingCardAction = null;
+                    resetDefenseDialog();
+                    updateUI();
+                    return;
+                }
+
+                const attackerTeam = pendingCardAction.attackerTeam;
+                cards.defense = 'USED';
+                logActivity(`${team.toUpperCase()} USED DEFENSE CARD after losing the Battle.`);
+                logActivity(`${team.toUpperCase()} pawn remains on its current tile.`);
+
+                pendingCardAction = null;
+                closeModal('cardVerificationModal');
+                resetDefenseDialog();
+                gameState.battleActive = false;
+                gameState.diceRolling = false;
+
+                showResultOverlay(true, 'DEFENSE SUCCESSFUL!', 'PAWN PROTECTED — TURN SKIPPED', () => {
+                    gameState.currentTurn = attackerTeam;
+                    setDiceDisplay('-');
+                    updateUI();
+                    logActivity(`${team.toUpperCase()}'s turn skipped. ${attackerTeam.toUpperCase()} may roll the dice.`);
+                });
+                updateUI();
+                return;
+            }
+
+            if (gameState.currentTurn !== team || cards[cardType] !== 'AVAILABLE') {
+                closeModal('cardVerificationModal');
+                pendingCardAction = null;
+                resetDefenseDialog();
+                updateUI();
+                return;
+            }
+
+            closeModal('cardVerificationModal');
+            resetDefenseDialog();
+
+            if (cardType === 'attack') {
+                cards.attack = 'USED';
+                logActivity(`${team.toUpperCase()} executed ATTACK CARD!`);
+
+                const opponentTeam = isTeam1 ? 'team2' : 'team1';
+                const opponentCards = isTeam1 ? gameState.team2Cards : gameState.team1Cards;
+
+                if (opponentCards.defense === 'ACTIVE') {
+                    opponentCards.defense = 'USED';
+                    logActivity(`ATTACK BLOCKED! ${opponentTeam.toUpperCase()} used DEFENSE CARD!`);
+                    showResultOverlay(true, 'ATTACK BLOCKED!', "OPPONENT'S DEFENSE CARD CONSUMED", () => switchTurn());
+                } else {
+                    pushOpponentBack(opponentTeam, 3);
+                    showResultOverlay(true, 'ATTACK SUCCESSFUL!', 'OPPONENT PUSHED BACK 3 STEPS', () => switchTurn());
+                }
+            } else if (cardType === 'lucky') {
+                alert('Lucky Card can only be used after landing on a tile and revealing its challenge!');
+                pendingCardAction = null;
+                updateUI();
+                return;
+            }
+
+            pendingCardAction = null;
+            updateUI();
+        }
+
+        async function pushOpponentBack(targetTeam, steps) {
+            if (targetTeam === 'team1') {
+                let targetIdx = Math.max(0, gameState.team1PositionIndex - steps);
+                for (let i = gameState.team1PositionIndex - 1; i >= targetIdx; i--) {
+                    gameState.team1PositionIndex = i;
+                    positionPawns();
+                    await new Promise(res => setTimeout(res, 200));
+                }
+            } else {
+                let targetIdx = Math.max(0, gameState.team2PositionIndex - steps);
+                for (let i = gameState.team2PositionIndex - 1; i >= targetIdx; i--) {
+                    gameState.team2PositionIndex = i;
+                    positionPawns();
+                    await new Promise(res => setTimeout(res, 200));
+                }
+            }
+        }
+
+        /* RESULT OVERLAYS & VICTORY */
+        function showResultOverlay(isSuccess, title, subtext, callback) {
+            const overlay = document.getElementById('resultOverlay');
+            const box = document.getElementById('resultBox');
+            const icon = document.getElementById('resultIcon');
+            const text = document.getElementById('resultText');
+            const sub = document.getElementById('resultSubtext');
+
+            if (isSuccess) {
+                box.className = "p-8 rounded-2xl border-4 text-center shadow-2xl flex flex-col items-center gap-3 bg-navy-900 border-gold-500 text-gold-500";
+                icon.className = "fa-solid fa-crown text-5xl mb-1 text-gold-500";
+            } else {
+                box.className = "p-8 rounded-2xl border-4 text-center shadow-2xl flex flex-col items-center gap-3 bg-red-950 border-red-600 text-red-400";
+                icon.className = "fa-solid fa-xmark-circle text-5xl mb-1 text-red-500";
+            }
+
+            text.textContent = title;
+            sub.textContent = subtext;
+
+            overlay.classList.remove('hidden');
+
+            setTimeout(() => {
+                overlay.classList.add('hidden');
+                if (callback) callback();
+            }, 2200);
+        }
+
+        function triggerVictory(winningTeam) {
+            document.getElementById('victoryTeamText').textContent = `${winningTeam} WINS THE GAME!`;
+            document.getElementById('victoryOverlay').classList.remove('hidden');
+            logActivity(`VICTORY! ${winningTeam} reached FINISH!`);
+        }
+
+        /* RESET GAME SYSTEM */
+        function confirmResetGame() {
+            if (confirm("Are you sure you want to reset the entire game state?")) {
+                executeResetGame();
+            }
+        }
+
+        function executeResetGame() {
+            gameState = {
+                team1PositionIndex: 0,
+                team2PositionIndex: 0,
+                team1PreviousIndex: 0,
+                team2PreviousIndex: 0,
+                team1Cards: { attack: "AVAILABLE", defense: "AVAILABLE", lucky: "AVAILABLE" },
+                team2Cards: { attack: "AVAILABLE", defense: "AVAILABLE", lucky: "AVAILABLE" },
+                currentTurn: "team1",
+                currentChallengeKey: null,
+                timer: 60,
+                timerRunning: false,
+                timerInterval: null,
+                diceValue: null,
+                diceRolling: false,
+                battleActive: false,
+                battleAttacker: null,
+                battleDefender: null,
+                preRollIndex: 0
+            };
+
+            closeModal('victoryOverlay');
+            closeModal('challengeModal');
+            closeModal('cardVerificationModal');
+            closeModal('battleAlertOverlay');
+            pendingCardAction = null;
+            resetDefenseDialog();
+
+            document.getElementById('activityLog').innerHTML = '<div class="text-gray-400 italic">Game reset. Team 1\'s turn to roll.</div>';
+            setDiceDisplay('-');
+
+            updateUI();
+        }
+
+        /* FULLSCREEN CONTROLLER */
+        function toggleFullScreen() {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen().catch(err => {
+                    alert(`Error attempting fullscreen: ${err.message}`);
+                });
+            } else {
+                if (document.exitFullscreen) {
+                    document.exitFullscreen();
+                }
+            }
+        }
+
+        function handleFullscreenChange() {
+            const icon = document.getElementById('fullscreenIcon');
+            const text = document.getElementById('fullscreenText');
+            if (document.fullscreenElement) {
+                icon.className = "fa-solid fa-compress text-gold-500";
+                text.textContent = "EXIT FULL";
+            } else {
+                icon.className = "fa-solid fa-expand text-gold-500";
+                text.textContent = "FULL SCREEN";
+            }
+        }
+
+        /* MODAL UTILITIES */
+        function openModal(id) {
+            document.getElementById(id).classList.remove('hidden');
+        }
+
+        function closeModal(id) {
+            document.getElementById(id).classList.add('hidden');
+        }
+    </script>
+</body>
+</html>
